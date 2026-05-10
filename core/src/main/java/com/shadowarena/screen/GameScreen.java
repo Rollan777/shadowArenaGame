@@ -6,6 +6,9 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.shadowarena.ShadowArenaGame;
+import com.shadowarena.decorator.DamageBoostDecorator;
+import com.shadowarena.decorator.HealthBoostDecorator;
+import com.shadowarena.decorator.SpeedBoostDecorator;
 import com.shadowarena.entity.Player;
 import com.shadowarena.manager.EnemyManager;
 import com.shadowarena.manager.WaveManager;
@@ -94,16 +97,6 @@ public class GameScreen extends ScreenAdapter {
         }
     }
 
-    private void notifyUi() {
-        gameSubject.notifyObservers("HP_CHANGED", player.getHp());
-        gameSubject.notifyObservers("MAX_HP_CHANGED", player.getMaxHp());
-        gameSubject.notifyObservers("SCORE_CHANGED", score);
-        gameSubject.notifyObservers("WAVE_CHANGED", waveManager.getCurrentWave());
-        gameSubject.notifyObservers("ENEMIES_CHANGED", enemyManager.getEnemyCount());
-        gameSubject.notifyObservers("STATE_CHANGED", player.getStateName());
-        gameSubject.notifyObservers("TIME_CHANGED", survivalTime);
-    }
-
     private void handleGlobalInput() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             game.getGameFacade().showMenu();
@@ -112,6 +105,31 @@ public class GameScreen extends ScreenAdapter {
         if (Gdx.input.isKeyJustPressed(Input.Keys.G)) {
             game.getGameFacade().showGameOver(score);
         }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
+            player.applyStats(new DamageBoostDecorator(player.getStats()));
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) {
+            player.applyStats(new SpeedBoostDecorator(player.getStats()));
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) {
+            player.applyStats(new HealthBoostDecorator(player.getStats()));
+        }
+    }
+
+    private void notifyUi() {
+        gameSubject.notifyObservers("HP_CHANGED", player.getHp());
+        gameSubject.notifyObservers("MAX_HP_CHANGED", player.getMaxHp());
+        gameSubject.notifyObservers("SCORE_CHANGED", score);
+        gameSubject.notifyObservers("WAVE_CHANGED", waveManager.getCurrentWave());
+        gameSubject.notifyObservers("ENEMIES_CHANGED", enemyManager.getEnemyCount());
+        gameSubject.notifyObservers("STATE_CHANGED", player.getStateName());
+        gameSubject.notifyObservers("UPGRADES_CHANGED", player.getStatsDescription());
+        gameSubject.notifyObservers("SPEED_CHANGED", player.getSpeed());
+        gameSubject.notifyObservers("DAMAGE_CHANGED", player.getDamage());
+        gameSubject.notifyObservers("TIME_CHANGED", survivalTime);
     }
 
     private void clearScreen() {

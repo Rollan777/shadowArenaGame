@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.shadowarena.config.GameConfig;
+import com.shadowarena.decorator.BasePlayerStats;
+import com.shadowarena.decorator.PlayerStats;
 import com.shadowarena.state.IdleState;
 import com.shadowarena.state.PlayerState;
 
@@ -15,11 +17,8 @@ public class Player {
     private float y;
     private final float width;
     private final float height;
-    private final float speed;
 
     private int hp;
-    private final int maxHp;
-    private final int damage;
 
     private final Rectangle bounds;
 
@@ -31,6 +30,7 @@ public class Player {
     private final float attackVisibleTime;
 
     private PlayerState currentState;
+    private PlayerStats stats;
 
     public Player(float x, float y) {
         this.x = x;
@@ -38,11 +38,9 @@ public class Player {
 
         this.width = GameConfig.PLAYER_WIDTH;
         this.height = GameConfig.PLAYER_HEIGHT;
-        this.speed = GameConfig.PLAYER_SPEED;
 
-        this.maxHp = GameConfig.PLAYER_MAX_HP;
-        this.hp = maxHp;
-        this.damage = GameConfig.PLAYER_DAMAGE;
+        this.stats = new BasePlayerStats();
+        this.hp = stats.getMaxHp();
 
         this.bounds = new Rectangle(x, y, width, height);
 
@@ -71,23 +69,25 @@ public class Player {
     }
 
     private void handleInput(float delta) {
+        float currentSpeed = stats.getSpeed();
+
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-            y += speed * delta;
+            y += currentSpeed * delta;
             moving = true;
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-            y -= speed * delta;
+            y -= currentSpeed * delta;
             moving = true;
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-            x -= speed * delta;
+            x -= currentSpeed * delta;
             moving = true;
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-            x += speed * delta;
+            x += currentSpeed * delta;
             moving = true;
         }
 
@@ -158,6 +158,30 @@ public class Player {
         );
     }
 
+    public void applyStats(PlayerStats newStats) {
+        int oldMaxHp = stats.getMaxHp();
+
+        this.stats = newStats;
+
+        int newMaxHp = stats.getMaxHp();
+
+        if (newMaxHp > oldMaxHp) {
+            hp += newMaxHp - oldMaxHp;
+        }
+
+        if (hp > newMaxHp) {
+            hp = newMaxHp;
+        }
+    }
+
+    public PlayerStats getStats() {
+        return stats;
+    }
+
+    public String getStatsDescription() {
+        return stats.getDescription();
+    }
+
     public void changeState(PlayerState newState) {
         if (currentState.getClass() == newState.getClass()) {
             return;
@@ -198,8 +222,8 @@ public class Player {
 
         hp += amount;
 
-        if (hp > maxHp) {
-            hp = maxHp;
+        if (hp > stats.getMaxHp()) {
+            hp = stats.getMaxHp();
         }
     }
 
@@ -216,11 +240,15 @@ public class Player {
     }
 
     public int getMaxHp() {
-        return maxHp;
+        return stats.getMaxHp();
     }
 
     public int getDamage() {
-        return damage;
+        return stats.getDamage();
+    }
+
+    public float getSpeed() {
+        return stats.getSpeed();
     }
 
     public float getX() {
