@@ -7,9 +7,8 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.shadowarena.ShadowArenaGame;
 import com.shadowarena.entity.Player;
-import com.shadowarena.factory.EnemyFactory;
-import com.shadowarena.factory.EnemyType;
 import com.shadowarena.manager.EnemyManager;
+import com.shadowarena.manager.WaveManager;
 
 public class GameScreen extends ScreenAdapter {
 
@@ -17,7 +16,7 @@ public class GameScreen extends ScreenAdapter {
 
     private Player player;
     private EnemyManager enemyManager;
-    private EnemyFactory enemyFactory;
+    private WaveManager waveManager;
 
     private int score;
     private float survivalTime;
@@ -31,13 +30,13 @@ public class GameScreen extends ScreenAdapter {
     public void show() {
         player = new Player(384, 224);
         enemyManager = new EnemyManager();
-        enemyFactory = new EnemyFactory();
+        waveManager = new WaveManager();
 
         score = 0;
         survivalTime = 0f;
         damageCooldown = 0f;
 
-        spawnTestEnemies();
+        waveManager.startNextWave(enemyManager);
     }
 
     @Override
@@ -60,27 +59,23 @@ public class GameScreen extends ScreenAdapter {
         player.update(delta);
         enemyManager.update(delta, player);
 
+        score += enemyManager.handlePlayerAttack(player);
+
         if (damageCooldown <= 0 && enemyManager.checkCollisionWithPlayer(player)) {
             damageCooldown = 0.7f;
-        }
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            score += 10;
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.J)) {
             player.heal(10);
         }
 
+        if (enemyManager.isEmpty()) {
+            waveManager.startNextWave(enemyManager);
+        }
+
         if (player.isDead()) {
             game.getGameFacade().showGameOver(score);
         }
-    }
-
-    private void spawnTestEnemies() {
-        enemyManager.addEnemy(enemyFactory.createEnemy(EnemyType.FAST, 80, 100));
-        enemyManager.addEnemy(enemyFactory.createEnemy(EnemyType.TANK, 700, 350));
-        enemyManager.addEnemy(enemyFactory.createEnemy(EnemyType.RANGED, 700, 100));
     }
 
     private void handleGlobalInput() {
@@ -114,12 +109,13 @@ public class GameScreen extends ScreenAdapter {
 
         game.getFont().draw(game.getBatch(), "HP: " + player.getHp() + "/" + player.getMaxHp(), 30, 440);
         game.getFont().draw(game.getBatch(), "Score: " + score, 30, 415);
-        game.getFont().draw(game.getBatch(), "Time: " + String.format("%.1f", survivalTime), 30, 390);
+        game.getFont().draw(game.getBatch(), "Wave: " + waveManager.getCurrentWave(), 30, 390);
         game.getFont().draw(game.getBatch(), "Enemies: " + enemyManager.getEnemyCount(), 30, 365);
+        game.getFont().draw(game.getBatch(), "Time: " + String.format("%.1f", survivalTime), 30, 340);
 
         game.getFont().draw(game.getBatch(), "Controls", 610, 440);
         game.getFont().draw(game.getBatch(), "WASD - Move", 610, 415);
-        game.getFont().draw(game.getBatch(), "SPACE - Add Score", 610, 390);
+        game.getFont().draw(game.getBatch(), "SPACE - Attack", 610, 390);
         game.getFont().draw(game.getBatch(), "J - Heal", 610, 365);
         game.getFont().draw(game.getBatch(), "G - Game Over", 610, 340);
         game.getFont().draw(game.getBatch(), "ESC - Menu", 610, 315);

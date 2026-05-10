@@ -21,9 +21,15 @@ public class Player {
 
     private final Rectangle bounds;
 
+    private boolean attacking;
+    private float attackTimer;
+    private final float attackCooldown;
+    private final float attackVisibleTime;
+
     public Player(float x, float y) {
         this.x = x;
         this.y = y;
+
         this.width = GameConfig.PLAYER_WIDTH;
         this.height = GameConfig.PLAYER_HEIGHT;
         this.speed = GameConfig.PLAYER_SPEED;
@@ -33,10 +39,16 @@ public class Player {
         this.damage = GameConfig.PLAYER_DAMAGE;
 
         this.bounds = new Rectangle(x, y, width, height);
+
+        this.attacking = false;
+        this.attackTimer = 0f;
+        this.attackCooldown = 0.35f;
+        this.attackVisibleTime = 0.12f;
     }
 
     public void update(float delta) {
         handleInput(delta);
+        updateAttack(delta);
         clampToScreen();
         updateBounds();
     }
@@ -56,6 +68,21 @@ public class Player {
 
         if (Gdx.input.isKeyPressed(Input.Keys.D)) {
             x += speed * delta;
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) && attackTimer <= 0) {
+            attacking = true;
+            attackTimer = attackCooldown;
+        }
+    }
+
+    private void updateAttack(float delta) {
+        if (attackTimer > 0) {
+            attackTimer -= delta;
+        }
+
+        if (attackTimer <= attackCooldown - attackVisibleTime) {
+            attacking = false;
         }
     }
 
@@ -84,6 +111,25 @@ public class Player {
     public void render(ShapeRenderer shapeRenderer) {
         shapeRenderer.setColor(Color.CYAN);
         shapeRenderer.rect(x, y, width, height);
+
+        if (attacking) {
+            Rectangle attackArea = getAttackArea();
+            shapeRenderer.setColor(Color.YELLOW);
+            shapeRenderer.rect(attackArea.x, attackArea.y, attackArea.width, attackArea.height);
+        }
+    }
+
+    public Rectangle getAttackArea() {
+        return new Rectangle(
+            x - 22,
+            y - 22,
+            width + 44,
+            height + 44
+        );
+    }
+
+    public boolean isAttacking() {
+        return attacking;
     }
 
     public void takeDamage(int amount) {
