@@ -9,6 +9,8 @@ import com.shadowarena.ShadowArenaGame;
 import com.shadowarena.entity.Player;
 import com.shadowarena.manager.EnemyManager;
 import com.shadowarena.manager.WaveManager;
+import com.shadowarena.observer.GameSubject;
+import com.shadowarena.observer.UiManager;
 
 public class GameScreen extends ScreenAdapter {
 
@@ -17,6 +19,9 @@ public class GameScreen extends ScreenAdapter {
     private Player player;
     private EnemyManager enemyManager;
     private WaveManager waveManager;
+
+    private GameSubject gameSubject;
+    private UiManager uiManager;
 
     private int score;
     private float survivalTime;
@@ -32,11 +37,16 @@ public class GameScreen extends ScreenAdapter {
         enemyManager = new EnemyManager();
         waveManager = new WaveManager();
 
+        gameSubject = new GameSubject();
+        uiManager = new UiManager();
+        gameSubject.addObserver(uiManager);
+
         score = 0;
         survivalTime = 0f;
         damageCooldown = 0f;
 
         waveManager.startNextWave(enemyManager);
+        notifyUi();
     }
 
     @Override
@@ -59,7 +69,11 @@ public class GameScreen extends ScreenAdapter {
         player.update(delta);
         enemyManager.update(delta, player);
 
-        score += enemyManager.handlePlayerAttack(player);
+        int earnedScore = enemyManager.handlePlayerAttack(player);
+
+        if (earnedScore > 0) {
+            score += earnedScore;
+        }
 
         if (damageCooldown <= 0 && enemyManager.checkCollisionWithPlayer(player)) {
             damageCooldown = 0.7f;
@@ -73,9 +87,21 @@ public class GameScreen extends ScreenAdapter {
             waveManager.startNextWave(enemyManager);
         }
 
+        notifyUi();
+
         if (player.isDead()) {
             game.getGameFacade().showGameOver(score);
         }
+    }
+
+    private void notifyUi() {
+        gameSubject.notifyObservers("HP_CHANGED", player.getHp());
+        gameSubject.notifyObservers("MAX_HP_CHANGED", player.getMaxHp());
+        gameSubject.notifyObservers("SCORE_CHANGED", score);
+        gameSubject.notifyObservers("WAVE_CHANGED", waveManager.getCurrentWave());
+        gameSubject.notifyObservers("ENEMIES_CHANGED", enemyManager.getEnemyCount());
+        gameSubject.notifyObservers("STATE_CHANGED", player.getStateName());
+        gameSubject.notifyObservers("TIME_CHANGED", survivalTime);
     }
 
     private void handleGlobalInput() {
@@ -104,23 +130,14 @@ public class GameScreen extends ScreenAdapter {
 
     private void renderHud() {
         game.getBatch().begin();
-
-        game.getFont().draw(game.getBatch(), "SHADOW ARENA", 340, 460);
-
-        game.getFont().draw(game.getBatch(), "HP: " + player.getHp() + "/" + player.getMaxHp(), 30, 440);
-        game.getFont().draw(game.getBatch(), "Score: " + score, 30, 415);
-        game.getFont().draw(game.getBatch(), "Wave: " + waveManager.getCurrentWave(), 30, 390);
-        game.getFont().draw(game.getBatch(), "Enemies: " + enemyManager.getEnemyCount(), 30, 365);
-        game.getFont().draw(game.getBatch(), "State: " + player.getStateName(), 30, 340);
-        game.getFont().draw(game.getBatch(), "Time: " + String.format("%.1f", survivalTime), 30, 315);
-
-        game.getFont().draw(game.getBatch(), "Controls", 610, 440);
-        game.getFont().draw(game.getBatch(), "WASD - Move", 610, 415);
-        game.getFont().draw(game.getBatch(), "SPACE - Attack", 610, 390);
-        game.getFont().draw(game.getBatch(), "J - Heal", 610, 365);
-        game.getFont().draw(game.getBatch(), "G - Game Over", 610, 340);
-        game.getFont().draw(game.getBatch(), "ESC - Menu", 610, 315);
-
+        uiManager.render(game.getBatch(), game.getFont());
         game.getBatch().end();
+    }
+
+    @Override
+    public void dispose() {
+        if (gameSubject != null && uiManager != null) {
+            gameSubject.removeObserver(uiManager);
+        }
     }
 }
