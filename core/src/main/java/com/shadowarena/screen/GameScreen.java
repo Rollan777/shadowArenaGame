@@ -25,8 +25,8 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void show() {
         playerX = 390;
-        playerY = 240;
-        playerSpeed = 220f;
+        playerY = 230;
+        playerSpeed = 230f;
 
         hp = 100;
         score = 0;
@@ -37,24 +37,14 @@ public class GameScreen extends ScreenAdapter {
     public void render(float delta) {
         update(delta);
 
-        Gdx.gl.glClearColor(0.05f, 0.10f, 0.08f, 1f);
+        Gdx.gl.glClearColor(0.04f, 0.09f, 0.08f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         game.getBatch().begin();
 
-        game.getFont().draw(game.getBatch(), "GAME SCREEN", 340, 460);
-        game.getFont().draw(game.getBatch(), "HP: " + hp, 30, 440);
-        game.getFont().draw(game.getBatch(), "Score: " + score, 30, 415);
-        game.getFont().draw(game.getBatch(), "Time: " + String.format("%.1f", survivalTime), 30, 390);
-
-        game.getFont().draw(game.getBatch(), "Controls:", 30, 330);
-        game.getFont().draw(game.getBatch(), "WASD - Move", 30, 305);
-        game.getFont().draw(game.getBatch(), "SPACE - Add score", 30, 280);
-        game.getFont().draw(game.getBatch(), "H - Lose HP", 30, 255);
-        game.getFont().draw(game.getBatch(), "G - Game Over", 30, 230);
-        game.getFont().draw(game.getBatch(), "ESC - Back to Menu", 30, 205);
-
-        game.getFont().draw(game.getBatch(), "PLAYER", playerX, playerY);
+        drawHud();
+        drawPlayer();
+        drawHelpText();
 
         game.getBatch().end();
     }
@@ -64,7 +54,7 @@ public class GameScreen extends ScreenAdapter {
         handleInput(delta);
 
         if (hp <= 0) {
-            game.getGameFacade().gameOver(score);
+            game.getGameFacade().showGameOver(score);
         }
     }
 
@@ -72,12 +62,15 @@ public class GameScreen extends ScreenAdapter {
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
             playerY += playerSpeed * delta;
         }
+
         if (Gdx.input.isKeyPressed(Input.Keys.S)) {
             playerY -= playerSpeed * delta;
         }
+
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
             playerX -= playerSpeed * delta;
         }
+
         if (Gdx.input.isKeyPressed(Input.Keys.D)) {
             playerX += playerSpeed * delta;
         }
@@ -91,7 +84,7 @@ public class GameScreen extends ScreenAdapter {
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.G)) {
-            game.getGameFacade().gameOver(score);
+            game.getGameFacade().showGameOver(score);
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
@@ -105,14 +98,37 @@ public class GameScreen extends ScreenAdapter {
         if (playerX < 0) {
             playerX = 0;
         }
-        if (playerX > Gdx.graphics.getWidth() - 50) {
-            playerX = Gdx.graphics.getWidth() - 50;
+
+        if (playerX > Gdx.graphics.getWidth() - 60) {
+            playerX = Gdx.graphics.getWidth() - 60;
         }
+
         if (playerY < 20) {
             playerY = 20;
         }
+
         if (playerY > Gdx.graphics.getHeight() - 20) {
             playerY = Gdx.graphics.getHeight() - 20;
         }
+    }
+
+    private void drawHud() {
+        game.getFont().draw(game.getBatch(), "SHADOW ARENA", 340, 460);
+        game.getFont().draw(game.getBatch(), "HP: " + hp, 30, 440);
+        game.getFont().draw(game.getBatch(), "Score: " + score, 30, 415);
+        game.getFont().draw(game.getBatch(), "Time: " + String.format("%.1f", survivalTime), 30, 390);
+    }
+
+    private void drawPlayer() {
+        game.getFont().draw(game.getBatch(), "[ PLAYER ]", playerX, playerY);
+    }
+
+    private void drawHelpText() {
+        game.getFont().draw(game.getBatch(), "Controls", 610, 440);
+        game.getFont().draw(game.getBatch(), "WASD - Move", 610, 410);
+        game.getFont().draw(game.getBatch(), "SPACE - Add Score", 610, 385);
+        game.getFont().draw(game.getBatch(), "H - Lose HP", 610, 360);
+        game.getFont().draw(game.getBatch(), "G - Game Over", 610, 335);
+        game.getFont().draw(game.getBatch(), "ESC - Menu", 610, 310);
     }
 }

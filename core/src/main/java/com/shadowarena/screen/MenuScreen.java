@@ -18,14 +18,20 @@ public class MenuScreen extends ScreenAdapter {
     public void render(float delta) {
         handleInput();
 
-        Gdx.gl.glClearColor(0.08f, 0.08f, 0.12f, 1f);
+        Gdx.gl.glClearColor(0.06f, 0.07f, 0.10f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         game.getBatch().begin();
-        game.getFont().draw(game.getBatch(), "SHADOW ARENA", 340, 420);
-        game.getFont().draw(game.getBatch(), "Press ENTER to Start", 320, 360);
-        game.getFont().draw(game.getBatch(), "Press ESC to Exit", 330, 330);
-        game.getBatch().draw(game.getFont().getRegion().getTexture(), 0, 0, 0, 0, 0, 0); // harmless no-op draw safety not required, can remove
+
+        game.getFont().draw(game.getBatch(), "SHADOW ARENA", 345, 410);
+        game.getFont().draw(game.getBatch(), "2D Arena Survival Game", 320, 375);
+
+        game.getFont().draw(game.getBatch(), "Press ENTER to Start", 315, 320);
+        game.getFont().draw(game.getBatch(), "Press ESC to Exit", 330, 290);
+
+        game.getFont().draw(game.getBatch(), "Design Patterns Project", 305, 210);
+        game.getFont().draw(game.getBatch(), "LibGDX + Java", 350, 185);
+
         game.getBatch().end();
     }
 

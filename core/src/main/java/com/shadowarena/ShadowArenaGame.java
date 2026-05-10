@@ -22,10 +22,16 @@ public class ShadowArenaGame extends Game {
     }
 
     @Override
+    public void render() {
+        super.render();
+    }
+
+    @Override
     public void dispose() {
-        if (screen != null) {
-            screen.dispose();
+        if (getScreen() != null) {
+            getScreen().dispose();
         }
+
         batch.dispose();
         font.dispose();
     }

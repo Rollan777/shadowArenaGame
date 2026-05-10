@@ -21,7 +21,7 @@ public class GameFacade {
         game.setScreen(new GameScreen(game));
     }
 
-    public void gameOver(int score) {
+    public void showGameOver(int score) {
         game.setScreen(new GameOverScreen(game, score));
     }
 }

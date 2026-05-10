@@ -16,10 +16,12 @@ public class Lwjgl3Launcher {
 
     private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
         Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
+
         configuration.setTitle("Shadow Arena");
         configuration.setWindowedMode(800, 480);
         configuration.setForegroundFPS(60);
         configuration.useVsync(true);
+
         return configuration;
     }
 }
