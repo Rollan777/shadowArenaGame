@@ -30,12 +30,22 @@ public class GameScreen extends ScreenAdapter {
     private float survivalTime;
     private float damageCooldown;
 
+    private boolean initialized;
+
     public GameScreen(ShadowArenaGame game) {
         this.game = game;
+        this.initialized = false;
     }
 
     @Override
     public void show() {
+        if (!initialized) {
+            initializeGame();
+            initialized = true;
+        }
+    }
+
+    private void initializeGame() {
         player = new Player(384, 224);
         enemyManager = new EnemyManager();
         waveManager = new WaveManager();
@@ -98,6 +108,10 @@ public class GameScreen extends ScreenAdapter {
     }
 
     private void handleGlobalInput() {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
+            game.getGameFacade().pauseGame(this);
+        }
+
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             game.getGameFacade().showMenu();
         }
@@ -149,6 +163,7 @@ public class GameScreen extends ScreenAdapter {
     private void renderHud() {
         game.getBatch().begin();
         uiManager.render(game.getBatch(), game.getFont());
+        game.getFont().draw(game.getBatch(), "P - Pause", 590, 215);
         game.getBatch().end();
     }
 
