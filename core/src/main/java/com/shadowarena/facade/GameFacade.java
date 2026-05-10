@@ -4,6 +4,7 @@ import com.shadowarena.ShadowArenaGame;
 import com.shadowarena.screen.GameOverScreen;
 import com.shadowarena.screen.GameScreen;
 import com.shadowarena.screen.MenuScreen;
+import com.shadowarena.service.GameStatsService;
 
 public class GameFacade {
 
@@ -22,6 +23,7 @@ public class GameFacade {
     }
 
     public void showGameOver(int score) {
+        GameStatsService.getInstance().registerGameResult(score);
         game.setScreen(new GameOverScreen(game, score));
     }
 }

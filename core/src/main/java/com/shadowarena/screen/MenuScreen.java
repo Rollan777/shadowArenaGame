@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.shadowarena.ShadowArenaGame;
+import com.shadowarena.service.GameStatsService;
 
 public class MenuScreen extends ScreenAdapter {
 
@@ -21,6 +22,8 @@ public class MenuScreen extends ScreenAdapter {
         Gdx.gl.glClearColor(0.06f, 0.07f, 0.10f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        GameStatsService statsService = GameStatsService.getInstance();
+
         game.getBatch().begin();
 
         game.getFont().draw(game.getBatch(), "SHADOW ARENA", 345, 410);
@@ -29,8 +32,11 @@ public class MenuScreen extends ScreenAdapter {
         game.getFont().draw(game.getBatch(), "Press ENTER to Start", 315, 320);
         game.getFont().draw(game.getBatch(), "Press ESC to Exit", 330, 290);
 
-        game.getFont().draw(game.getBatch(), "Design Patterns Project", 305, 210);
-        game.getFont().draw(game.getBatch(), "LibGDX + Java", 350, 185);
+        game.getFont().draw(game.getBatch(), "Best Score: " + statsService.getBestScore(), 335, 235);
+        game.getFont().draw(game.getBatch(), "Games Played: " + statsService.getTotalGamesPlayed(), 320, 210);
+
+        game.getFont().draw(game.getBatch(), "Design Patterns Project", 305, 160);
+        game.getFont().draw(game.getBatch(), "LibGDX + Java", 350, 135);
 
         game.getBatch().end();
     }
