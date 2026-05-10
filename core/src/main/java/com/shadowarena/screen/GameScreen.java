@@ -4,17 +4,16 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.shadowarena.ShadowArenaGame;
+import com.shadowarena.entity.Player;
 
 public class GameScreen extends ScreenAdapter {
 
     private final ShadowArenaGame game;
 
-    private float playerX;
-    private float playerY;
-    private float playerSpeed;
+    private Player player;
 
-    private int hp;
     private int score;
     private float survivalTime;
 
@@ -24,11 +23,8 @@ public class GameScreen extends ScreenAdapter {
 
     @Override
     public void show() {
-        playerX = 390;
-        playerY = 230;
-        playerSpeed = 230f;
+        player = new Player(384, 224);
 
-        hp = 100;
         score = 0;
         survivalTime = 0f;
     }
@@ -36,99 +32,78 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void render(float delta) {
         update(delta);
-
-        Gdx.gl.glClearColor(0.04f, 0.09f, 0.08f, 1f);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-        game.getBatch().begin();
-
-        drawHud();
-        drawPlayer();
-        drawHelpText();
-
-        game.getBatch().end();
+        clearScreen();
+        renderGameObjects();
+        renderHud();
     }
 
     private void update(float delta) {
         survivalTime += delta;
-        handleInput(delta);
 
-        if (hp <= 0) {
-            game.getGameFacade().showGameOver(score);
-        }
-    }
-
-    private void handleInput(float delta) {
-        if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-            playerY += playerSpeed * delta;
-        }
-
-        if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-            playerY -= playerSpeed * delta;
-        }
-
-        if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-            playerX -= playerSpeed * delta;
-        }
-
-        if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-            playerX += playerSpeed * delta;
-        }
+        handleGlobalInput();
+        player.update(delta);
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
             score += 10;
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.H)) {
-            hp -= 10;
+            player.takeDamage(10);
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.J)) {
+            player.heal(10);
+        }
+
+        if (player.isDead()) {
+            game.getGameFacade().showGameOver(score);
+        }
+    }
+
+    private void handleGlobalInput() {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            game.getGameFacade().showMenu();
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.G)) {
             game.getGameFacade().showGameOver(score);
         }
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            game.getGameFacade().showMenu();
-        }
-
-        clampPlayerToScreen();
     }
 
-    private void clampPlayerToScreen() {
-        if (playerX < 0) {
-            playerX = 0;
-        }
-
-        if (playerX > Gdx.graphics.getWidth() - 60) {
-            playerX = Gdx.graphics.getWidth() - 60;
-        }
-
-        if (playerY < 20) {
-            playerY = 20;
-        }
-
-        if (playerY > Gdx.graphics.getHeight() - 20) {
-            playerY = Gdx.graphics.getHeight() - 20;
-        }
+    private void clearScreen() {
+        Gdx.gl.glClearColor(0.04f, 0.08f, 0.09f, 1f);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
     }
 
-    private void drawHud() {
+    private void renderGameObjects() {
+        ShapeRenderer shapeRenderer = game.getShapeRenderer();
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        player.render(shapeRenderer);
+        shapeRenderer.end();
+    }
+
+    private void renderHud() {
+        game.getBatch().begin();
+
         game.getFont().draw(game.getBatch(), "SHADOW ARENA", 340, 460);
-        game.getFont().draw(game.getBatch(), "HP: " + hp, 30, 440);
+
+        game.getFont().draw(game.getBatch(), "HP: " + player.getHp() + "/" + player.getMaxHp(), 30, 440);
         game.getFont().draw(game.getBatch(), "Score: " + score, 30, 415);
         game.getFont().draw(game.getBatch(), "Time: " + String.format("%.1f", survivalTime), 30, 390);
-    }
 
-    private void drawPlayer() {
-        game.getFont().draw(game.getBatch(), "[ PLAYER ]", playerX, playerY);
-    }
+        game.getFont().draw(game.getBatch(), "Player Position", 30, 335);
+        game.getFont().draw(game.getBatch(), "X: " + (int) player.getX(), 30, 310);
+        game.getFont().draw(game.getBatch(), "Y: " + (int) player.getY(), 30, 285);
 
-    private void drawHelpText() {
         game.getFont().draw(game.getBatch(), "Controls", 610, 440);
-        game.getFont().draw(game.getBatch(), "WASD - Move", 610, 410);
-        game.getFont().draw(game.getBatch(), "SPACE - Add Score", 610, 385);
-        game.getFont().draw(game.getBatch(), "H - Lose HP", 610, 360);
-        game.getFont().draw(game.getBatch(), "G - Game Over", 610, 335);
-        game.getFont().draw(game.getBatch(), "ESC - Menu", 610, 310);
+        game.getFont().draw(game.getBatch(), "WASD - Move", 610, 415);
+        game.getFont().draw(game.getBatch(), "SPACE - Add Score", 610, 390);
+        game.getFont().draw(game.getBatch(), "H - Damage", 610, 365);
+        game.getFont().draw(game.getBatch(), "J - Heal", 610, 340);
+        game.getFont().draw(game.getBatch(), "G - Game Over", 610, 315);
+        game.getFont().draw(game.getBatch(), "ESC - Menu", 610, 290);
+
+        game.getBatch().end();
     }
 }
