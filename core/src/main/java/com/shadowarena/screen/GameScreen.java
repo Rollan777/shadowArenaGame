@@ -111,7 +111,8 @@ public class GameScreen extends ScreenAdapter {
         game.getFont().draw(game.getBatch(), "Score: " + score, 30, 415);
         game.getFont().draw(game.getBatch(), "Wave: " + waveManager.getCurrentWave(), 30, 390);
         game.getFont().draw(game.getBatch(), "Enemies: " + enemyManager.getEnemyCount(), 30, 365);
-        game.getFont().draw(game.getBatch(), "Time: " + String.format("%.1f", survivalTime), 30, 340);
+        game.getFont().draw(game.getBatch(), "State: " + player.getStateName(), 30, 340);
+        game.getFont().draw(game.getBatch(), "Time: " + String.format("%.1f", survivalTime), 30, 315);
 
         game.getFont().draw(game.getBatch(), "Controls", 610, 440);
         game.getFont().draw(game.getBatch(), "WASD - Move", 610, 415);

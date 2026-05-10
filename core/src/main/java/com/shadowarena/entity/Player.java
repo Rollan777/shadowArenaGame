@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.shadowarena.config.GameConfig;
+import com.shadowarena.state.IdleState;
+import com.shadowarena.state.PlayerState;
 
 public class Player {
 
@@ -21,10 +23,14 @@ public class Player {
 
     private final Rectangle bounds;
 
+    private boolean moving;
     private boolean attacking;
+
     private float attackTimer;
     private final float attackCooldown;
     private final float attackVisibleTime;
+
+    private PlayerState currentState;
 
     public Player(float x, float y) {
         this.x = x;
@@ -40,34 +46,49 @@ public class Player {
 
         this.bounds = new Rectangle(x, y, width, height);
 
+        this.moving = false;
         this.attacking = false;
+
         this.attackTimer = 0f;
         this.attackCooldown = 0.35f;
         this.attackVisibleTime = 0.12f;
+
+        this.currentState = new IdleState();
+        this.currentState.enter(this);
     }
 
     public void update(float delta) {
-        handleInput(delta);
-        updateAttack(delta);
-        clampToScreen();
+        moving = false;
+
+        if (!isDead()) {
+            handleInput(delta);
+            updateAttack(delta);
+            clampToScreen();
+        }
+
         updateBounds();
+        currentState.update(this, delta);
     }
 
     private void handleInput(float delta) {
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
             y += speed * delta;
+            moving = true;
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.S)) {
             y -= speed * delta;
+            moving = true;
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
             x -= speed * delta;
+            moving = true;
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.D)) {
             x += speed * delta;
+            moving = true;
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) && attackTimer <= 0) {
@@ -109,12 +130,21 @@ public class Player {
     }
 
     public void render(ShapeRenderer shapeRenderer) {
-        shapeRenderer.setColor(Color.CYAN);
+        if (isDead()) {
+            shapeRenderer.setColor(Color.DARK_GRAY);
+        } else if (attacking) {
+            shapeRenderer.setColor(Color.YELLOW);
+        } else if (moving) {
+            shapeRenderer.setColor(Color.SKY);
+        } else {
+            shapeRenderer.setColor(Color.CYAN);
+        }
+
         shapeRenderer.rect(x, y, width, height);
 
         if (attacking) {
             Rectangle attackArea = getAttackArea();
-            shapeRenderer.setColor(Color.YELLOW);
+            shapeRenderer.setColor(Color.GOLD);
             shapeRenderer.rect(attackArea.x, attackArea.y, attackArea.width, attackArea.height);
         }
     }
@@ -128,11 +158,32 @@ public class Player {
         );
     }
 
+    public void changeState(PlayerState newState) {
+        if (currentState.getClass() == newState.getClass()) {
+            return;
+        }
+
+        currentState = newState;
+        currentState.enter(this);
+    }
+
+    public String getStateName() {
+        return currentState.getName();
+    }
+
+    public boolean isMoving() {
+        return moving;
+    }
+
     public boolean isAttacking() {
         return attacking;
     }
 
     public void takeDamage(int amount) {
+        if (isDead()) {
+            return;
+        }
+
         hp -= amount;
 
         if (hp < 0) {
@@ -141,6 +192,10 @@ public class Player {
     }
 
     public void heal(int amount) {
+        if (isDead()) {
+            return;
+        }
+
         hp += amount;
 
         if (hp > maxHp) {
