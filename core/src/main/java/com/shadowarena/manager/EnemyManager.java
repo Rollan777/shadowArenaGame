@@ -1,6 +1,8 @@
 package com.shadowarena.manager;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.shadowarena.effect.EffectManager;
 import com.shadowarena.entity.Player;
 import com.shadowarena.entity.enemy.Enemy;
 
@@ -43,7 +45,7 @@ public class EnemyManager {
         return false;
     }
 
-    public int handlePlayerAttack(Player player) {
+    public int handlePlayerAttack(Player player, EffectManager effectManager) {
         int earnedScore = 0;
 
         if (!player.isAttacking()) {
@@ -58,8 +60,27 @@ public class EnemyManager {
             if (player.getAttackArea().overlaps(enemy.getBounds())) {
                 enemy.takeDamage(player.getDamage());
 
+                effectManager.showDamage(
+                    enemy.getCenterX(),
+                    enemy.getCenterY() + 18f,
+                    player.getDamage()
+                );
+
                 if (enemy.isDead()) {
                     earnedScore += enemy.getReward();
+
+                    effectManager.showScore(
+                        enemy.getCenterX(),
+                        enemy.getCenterY() + 38f,
+                        enemy.getReward()
+                    );
+
+                    effectManager.spawnExplosion(
+                        enemy.getCenterX(),
+                        enemy.getCenterY(),
+                        Color.CORAL
+                    );
+
                     iterator.remove();
                 }
             }

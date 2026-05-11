@@ -9,6 +9,7 @@ import com.shadowarena.ShadowArenaGame;
 import com.shadowarena.decorator.DamageBoostDecorator;
 import com.shadowarena.decorator.HealthBoostDecorator;
 import com.shadowarena.decorator.SpeedBoostDecorator;
+import com.shadowarena.effect.EffectManager;
 import com.shadowarena.entity.Player;
 import com.shadowarena.manager.EnemyManager;
 import com.shadowarena.manager.WaveManager;
@@ -30,6 +31,7 @@ public class GameScreen extends ScreenAdapter {
 
     private ArenaRenderer arenaRenderer;
     private HudRenderer hudRenderer;
+    private EffectManager effectManager;
 
     private int score;
     private float survivalTime;
@@ -61,12 +63,13 @@ public class GameScreen extends ScreenAdapter {
 
         arenaRenderer = new ArenaRenderer();
         hudRenderer = new HudRenderer();
+        effectManager = new EffectManager();
 
         score = 0;
         survivalTime = 0f;
         damageCooldown = 0f;
 
-        waveManager.startNextWave(enemyManager);
+        startNextWave();
         notifyUi();
     }
 
@@ -77,6 +80,7 @@ public class GameScreen extends ScreenAdapter {
         renderGameObjects();
         renderHudPanels();
         renderHudText();
+        renderEffectsText();
     }
 
     private void update(float delta) {
@@ -90,8 +94,9 @@ public class GameScreen extends ScreenAdapter {
 
         player.update(delta);
         enemyManager.update(delta, player);
+        effectManager.update(delta);
 
-        int earnedScore = enemyManager.handlePlayerAttack(player);
+        int earnedScore = enemyManager.handlePlayerAttack(player, effectManager);
 
         if (earnedScore > 0) {
             score += earnedScore;
@@ -106,13 +111,21 @@ public class GameScreen extends ScreenAdapter {
         }
 
         if (enemyManager.isEmpty()) {
-            waveManager.startNextWave(enemyManager);
+            startNextWave();
         }
 
         notifyUi();
 
         if (player.isDead()) {
             game.getGameFacade().showGameOver(score);
+        }
+    }
+
+    private void startNextWave() {
+        waveManager.startNextWave(enemyManager);
+
+        if (effectManager != null) {
+            effectManager.showWave(360, 250, waveManager.getCurrentWave());
         }
     }
 
@@ -167,6 +180,7 @@ public class GameScreen extends ScreenAdapter {
         arenaRenderer.render(shapeRenderer);
         player.render(shapeRenderer);
         enemyManager.render(shapeRenderer);
+        effectManager.renderParticles(shapeRenderer);
         shapeRenderer.end();
     }
 
@@ -174,8 +188,10 @@ public class GameScreen extends ScreenAdapter {
         ShapeRenderer shapeRenderer = game.getShapeRenderer();
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+
         hudRenderer.renderPanel(shapeRenderer, 24, 185, 260, 265);
         hudRenderer.renderPanel(shapeRenderer, 585, 220, 195, 230);
+
         hudRenderer.renderHealthBar(
             shapeRenderer,
             35,
@@ -185,6 +201,7 @@ public class GameScreen extends ScreenAdapter {
             player.getHp(),
             player.getMaxHp()
         );
+
         shapeRenderer.end();
     }
 
@@ -194,10 +211,20 @@ public class GameScreen extends ScreenAdapter {
         game.getBatch().end();
     }
 
+    private void renderEffectsText() {
+        game.getBatch().begin();
+        effectManager.renderTexts(game.getBatch(), game.getFont());
+        game.getBatch().end();
+    }
+
     @Override
     public void dispose() {
         if (gameSubject != null && uiManager != null) {
             gameSubject.removeObserver(uiManager);
+        }
+
+        if (effectManager != null) {
+            effectManager.clear();
         }
     }
 }
