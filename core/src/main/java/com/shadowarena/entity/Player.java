@@ -10,6 +10,7 @@ import com.shadowarena.decorator.BasePlayerStats;
 import com.shadowarena.decorator.PlayerStats;
 import com.shadowarena.state.IdleState;
 import com.shadowarena.state.PlayerState;
+import com.shadowarena.ui.UiTheme;
 
 public class Player {
 
@@ -108,20 +109,22 @@ public class Player {
     }
 
     private void clampToScreen() {
-        if (x < 0) {
-            x = 0;
+        float padding = 22f;
+
+        if (x < padding) {
+            x = padding;
         }
 
-        if (x > Gdx.graphics.getWidth() - width) {
-            x = Gdx.graphics.getWidth() - width;
+        if (x > Gdx.graphics.getWidth() - width - padding) {
+            x = Gdx.graphics.getWidth() - width - padding;
         }
 
-        if (y < 0) {
-            y = 0;
+        if (y < padding) {
+            y = padding;
         }
 
-        if (y > Gdx.graphics.getHeight() - height) {
-            y = Gdx.graphics.getHeight() - height;
+        if (y > Gdx.graphics.getHeight() - height - padding) {
+            y = Gdx.graphics.getHeight() - height - padding;
         }
     }
 
@@ -132,29 +135,31 @@ public class Player {
     public void render(ShapeRenderer shapeRenderer) {
         if (isDead()) {
             shapeRenderer.setColor(Color.DARK_GRAY);
-        } else if (attacking) {
-            shapeRenderer.setColor(Color.YELLOW);
-        } else if (moving) {
-            shapeRenderer.setColor(Color.SKY);
         } else {
-            shapeRenderer.setColor(Color.CYAN);
+            shapeRenderer.setColor(UiTheme.PLAYER);
         }
 
         shapeRenderer.rect(x, y, width, height);
 
+        shapeRenderer.setColor(Color.WHITE);
+        shapeRenderer.rectLine(x, y, x + width, y, 2f);
+        shapeRenderer.rectLine(x, y + height, x + width, y + height, 2f);
+        shapeRenderer.rectLine(x, y, x, y + height, 2f);
+        shapeRenderer.rectLine(x + width, y, x + width, y + height, 2f);
+
         if (attacking) {
             Rectangle attackArea = getAttackArea();
-            shapeRenderer.setColor(Color.GOLD);
+            shapeRenderer.setColor(UiTheme.PLAYER_ATTACK);
             shapeRenderer.rect(attackArea.x, attackArea.y, attackArea.width, attackArea.height);
         }
     }
 
     public Rectangle getAttackArea() {
         return new Rectangle(
-            x - 22,
-            y - 22,
-            width + 44,
-            height + 44
+            x - 24,
+            y - 24,
+            width + 48,
+            height + 48
         );
     }
 

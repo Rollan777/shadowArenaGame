@@ -14,6 +14,8 @@ import com.shadowarena.manager.EnemyManager;
 import com.shadowarena.manager.WaveManager;
 import com.shadowarena.observer.GameSubject;
 import com.shadowarena.observer.UiManager;
+import com.shadowarena.ui.ArenaRenderer;
+import com.shadowarena.ui.HudRenderer;
 
 public class GameScreen extends ScreenAdapter {
 
@@ -25,6 +27,9 @@ public class GameScreen extends ScreenAdapter {
 
     private GameSubject gameSubject;
     private UiManager uiManager;
+
+    private ArenaRenderer arenaRenderer;
+    private HudRenderer hudRenderer;
 
     private int score;
     private float survivalTime;
@@ -54,6 +59,9 @@ public class GameScreen extends ScreenAdapter {
         uiManager = new UiManager();
         gameSubject.addObserver(uiManager);
 
+        arenaRenderer = new ArenaRenderer();
+        hudRenderer = new HudRenderer();
+
         score = 0;
         survivalTime = 0f;
         damageCooldown = 0f;
@@ -67,7 +75,8 @@ public class GameScreen extends ScreenAdapter {
         update(delta);
         clearScreen();
         renderGameObjects();
-        renderHud();
+        renderHudPanels();
+        renderHudText();
     }
 
     private void update(float delta) {
@@ -147,7 +156,7 @@ public class GameScreen extends ScreenAdapter {
     }
 
     private void clearScreen() {
-        Gdx.gl.glClearColor(0.04f, 0.08f, 0.09f, 1f);
+        Gdx.gl.glClearColor(0.03f, 0.05f, 0.07f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
     }
 
@@ -155,15 +164,33 @@ public class GameScreen extends ScreenAdapter {
         ShapeRenderer shapeRenderer = game.getShapeRenderer();
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        arenaRenderer.render(shapeRenderer);
         player.render(shapeRenderer);
         enemyManager.render(shapeRenderer);
         shapeRenderer.end();
     }
 
-    private void renderHud() {
+    private void renderHudPanels() {
+        ShapeRenderer shapeRenderer = game.getShapeRenderer();
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        hudRenderer.renderPanel(shapeRenderer, 24, 185, 260, 265);
+        hudRenderer.renderPanel(shapeRenderer, 585, 220, 195, 230);
+        hudRenderer.renderHealthBar(
+            shapeRenderer,
+            35,
+            448,
+            230,
+            10,
+            player.getHp(),
+            player.getMaxHp()
+        );
+        shapeRenderer.end();
+    }
+
+    private void renderHudText() {
         game.getBatch().begin();
         uiManager.render(game.getBatch(), game.getFont());
-        game.getFont().draw(game.getBatch(), "P - Pause", 590, 215);
         game.getBatch().end();
     }
 

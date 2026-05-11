@@ -7,22 +7,13 @@ import com.shadowarena.strategy.MovementStrategy;
 public class TankEnemy extends Enemy {
 
     public TankEnemy(float x, float y, MovementStrategy movementStrategy) {
-        super(
-            x,
-            y,
-            36f,
-            36f,
-            75f,
-            100,
-            15,
-            35,
-            movementStrategy
-        );
+        super(x, y, 38f, 38f, 75f, 100, 15, 35, movementStrategy);
     }
 
     @Override
     public void render(ShapeRenderer shapeRenderer) {
         shapeRenderer.setColor(Color.PURPLE);
         shapeRenderer.rect(x, y, width, height);
+        renderHealthBar(shapeRenderer);
     }
 }

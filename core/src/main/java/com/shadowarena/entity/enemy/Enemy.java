@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.shadowarena.entity.Player;
 import com.shadowarena.strategy.MovementStrategy;
+import com.shadowarena.ui.UiTheme;
 
 public abstract class Enemy {
 
@@ -14,6 +15,7 @@ public abstract class Enemy {
     protected float speed;
 
     protected int hp;
+    protected int maxHp;
     protected int damage;
     protected int reward;
 
@@ -37,6 +39,7 @@ public abstract class Enemy {
         this.height = height;
         this.speed = speed;
         this.hp = hp;
+        this.maxHp = hp;
         this.damage = damage;
         this.reward = reward;
         this.movementStrategy = movementStrategy;
@@ -49,6 +52,21 @@ public abstract class Enemy {
     }
 
     public abstract void render(ShapeRenderer shapeRenderer);
+
+    protected void renderHealthBar(ShapeRenderer shapeRenderer) {
+        float barWidth = width;
+        float barHeight = 4f;
+        float barX = x;
+        float barY = y + height + 6f;
+
+        shapeRenderer.setColor(UiTheme.BAR_BACKGROUND);
+        shapeRenderer.rect(barX, barY, barWidth, barHeight);
+
+        float hpPercent = Math.max(0f, Math.min(1f, hp / (float) maxHp));
+
+        shapeRenderer.setColor(UiTheme.HP_RED);
+        shapeRenderer.rect(barX, barY, barWidth * hpPercent, barHeight);
+    }
 
     public void moveBy(float dx, float dy) {
         x += dx;
