@@ -71,6 +71,16 @@ public abstract class Enemy {
     public void moveBy(float dx, float dy) {
         x += dx;
         y += dy;
+
+        float minX = com.shadowarena.config.GameConfig.ARENA_X + 4f;
+        float maxX = com.shadowarena.config.GameConfig.ARENA_X + com.shadowarena.config.GameConfig.ARENA_WIDTH - width - 4f;
+        float minY = com.shadowarena.config.GameConfig.ARENA_Y + 4f;
+        float maxY = com.shadowarena.config.GameConfig.ARENA_Y + com.shadowarena.config.GameConfig.ARENA_HEIGHT - height - 4f;
+
+        if (x < minX) x = minX;
+        if (x > maxX) x = maxX;
+        if (y < minY) y = minY;
+        if (y > maxY) y = maxY;
     }
 
     protected void updateBounds() {

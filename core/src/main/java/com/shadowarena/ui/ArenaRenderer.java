@@ -1,45 +1,55 @@
 package com.shadowarena.ui;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.shadowarena.config.GameConfig;
 
 public class ArenaRenderer {
 
-    private static final float PADDING = 18f;
     private static final float GRID_SIZE = 40f;
 
     public void render(ShapeRenderer shapeRenderer) {
-        renderBackground(shapeRenderer);
+        renderArenaBackground(shapeRenderer);
         renderGrid(shapeRenderer);
         renderArenaBorder(shapeRenderer);
     }
 
-    private void renderBackground(ShapeRenderer shapeRenderer) {
+    private void renderArenaBackground(ShapeRenderer shapeRenderer) {
         shapeRenderer.setColor(UiTheme.BACKGROUND);
-        shapeRenderer.rect(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        shapeRenderer.rect(
+            GameConfig.ARENA_X,
+            GameConfig.ARENA_Y,
+            GameConfig.ARENA_WIDTH,
+            GameConfig.ARENA_HEIGHT
+        );
     }
 
     private void renderGrid(ShapeRenderer shapeRenderer) {
         shapeRenderer.setColor(UiTheme.GRID);
 
-        for (float x = PADDING; x < Gdx.graphics.getWidth() - PADDING; x += GRID_SIZE) {
-            shapeRenderer.rectLine(x, PADDING, x, Gdx.graphics.getHeight() - PADDING, 1f);
+        float startX = GameConfig.ARENA_X;
+        float endX = GameConfig.ARENA_X + GameConfig.ARENA_WIDTH;
+        float startY = GameConfig.ARENA_Y;
+        float endY = GameConfig.ARENA_Y + GameConfig.ARENA_HEIGHT;
+
+        for (float x = startX; x <= endX; x += GRID_SIZE) {
+            shapeRenderer.rectLine(x, startY, x, endY, 1f);
         }
 
-        for (float y = PADDING; y < Gdx.graphics.getHeight() - PADDING; y += GRID_SIZE) {
-            shapeRenderer.rectLine(PADDING, y, Gdx.graphics.getWidth() - PADDING, y, 1f);
+        for (float y = startY; y <= endY; y += GRID_SIZE) {
+            shapeRenderer.rectLine(startX, y, endX, y, 1f);
         }
     }
 
     private void renderArenaBorder(ShapeRenderer shapeRenderer) {
+        float x = GameConfig.ARENA_X;
+        float y = GameConfig.ARENA_Y;
+        float w = GameConfig.ARENA_WIDTH;
+        float h = GameConfig.ARENA_HEIGHT;
+
         shapeRenderer.setColor(UiTheme.ARENA_BORDER);
-
-        float width = Gdx.graphics.getWidth() - PADDING * 2;
-        float height = Gdx.graphics.getHeight() - PADDING * 2;
-
-        shapeRenderer.rectLine(PADDING, PADDING, PADDING + width, PADDING, 3f);
-        shapeRenderer.rectLine(PADDING, PADDING + height, PADDING + width, PADDING + height, 3f);
-        shapeRenderer.rectLine(PADDING, PADDING, PADDING, PADDING + height, 3f);
-        shapeRenderer.rectLine(PADDING + width, PADDING, PADDING + width, PADDING + height, 3f);
+        shapeRenderer.rectLine(x, y, x + w, y, 3f);
+        shapeRenderer.rectLine(x, y + h, x + w, y + h, 3f);
+        shapeRenderer.rectLine(x, y, x, y + h, 3f);
+        shapeRenderer.rectLine(x + w, y, x + w, y + h, 3f);
     }
 }

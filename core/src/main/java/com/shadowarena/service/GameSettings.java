@@ -10,8 +10,8 @@ public class GameSettings {
     private final String gameTitle;
 
     private GameSettings() {
-        this.windowWidth = 800;
-        this.windowHeight = 480;
+        this.windowWidth = 1100;
+        this.windowHeight = 620;
         this.targetFps = 60;
         this.gameTitle = "Shadow Arena";
     }
@@ -20,7 +20,6 @@ public class GameSettings {
         if (instance == null) {
             instance = new GameSettings();
         }
-
         return instance;
     }
 

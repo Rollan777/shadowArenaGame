@@ -24,24 +24,23 @@ public class PauseScreen extends ScreenAdapter {
     public void render(float delta) {
         handleInput();
 
-        Gdx.gl.glClearColor(0.03f, 0.03f, 0.06f, 1f);
+        Gdx.gl.glClearColor(0.02f, 0.03f, 0.05f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         ShapeRenderer shapeRenderer = game.getShapeRenderer();
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        hudRenderer.renderPanel(shapeRenderer, 250, 130, 300, 230);
+        hudRenderer.renderPanel(shapeRenderer, 390, 180, 320, 260);
         shapeRenderer.end();
 
         game.getBatch().begin();
 
-        game.getFont().draw(game.getBatch(), "GAME PAUSED", 350, 325);
+        game.getFont().draw(game.getBatch(), "GAME PAUSED", 500, 390);
+        game.getFont().draw(game.getBatch(), "[ R ] Resume", 500, 330);
+        game.getFont().draw(game.getBatch(), "[ M ] Menu", 510, 300);
+        game.getFont().draw(game.getBatch(), "[ ESC ] Exit", 505, 270);
 
-        game.getFont().draw(game.getBatch(), "Press R to Resume", 325, 275);
-        game.getFont().draw(game.getBatch(), "Press M to Menu", 330, 250);
-        game.getFont().draw(game.getBatch(), "Press ESC to Exit", 325, 225);
-
-        game.getFont().draw(game.getBatch(), "Shadow Arena", 355, 170);
-        game.getFont().draw(game.getBatch(), "Game Flow Control", 335, 145);
+        game.getFont().draw(game.getBatch(), "Shadow Arena", 505, 220);
+        game.getFont().draw(game.getBatch(), "Game Flow Control", 485, 195);
 
         game.getBatch().end();
     }

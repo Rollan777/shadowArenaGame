@@ -6,9 +6,7 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.shadowarena.ShadowArenaGame;
-import com.shadowarena.decorator.DamageBoostDecorator;
-import com.shadowarena.decorator.HealthBoostDecorator;
-import com.shadowarena.decorator.SpeedBoostDecorator;
+import com.shadowarena.config.GameConfig;
 import com.shadowarena.effect.EffectManager;
 import com.shadowarena.entity.Player;
 import com.shadowarena.manager.EnemyManager;
@@ -53,7 +51,11 @@ public class GameScreen extends ScreenAdapter {
     }
 
     private void initializeGame() {
-        player = new Player(384, 224);
+        player = new Player(
+            GameConfig.ARENA_X + GameConfig.ARENA_WIDTH / 2f,
+            GameConfig.ARENA_Y + GameConfig.ARENA_HEIGHT / 2f
+        );
+
         enemyManager = new EnemyManager();
         waveManager = new WaveManager();
 
@@ -125,7 +127,11 @@ public class GameScreen extends ScreenAdapter {
         waveManager.startNextWave(enemyManager);
 
         if (effectManager != null) {
-            effectManager.showWave(360, 250, waveManager.getCurrentWave());
+            effectManager.showWave(
+                GameConfig.ARENA_X + GameConfig.ARENA_WIDTH / 2f - 40f,
+                GameConfig.ARENA_Y + GameConfig.ARENA_HEIGHT / 2f,
+                waveManager.getCurrentWave()
+            );
         }
     }
 
@@ -143,15 +149,19 @@ public class GameScreen extends ScreenAdapter {
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
-            player.applyStats(new DamageBoostDecorator(player.getStats()));
+            boolean upgraded = player.applyDamageBoost();
+
+            if (upgraded) {
+                effectManager.showScore(player.getX(), player.getY() + 55f, 0);
+            }
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) {
-            player.applyStats(new SpeedBoostDecorator(player.getStats()));
+            player.applySpeedBoost();
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) {
-            player.applyStats(new HealthBoostDecorator(player.getStats()));
+            player.applyHealthBoost();
         }
     }
 
@@ -162,14 +172,18 @@ public class GameScreen extends ScreenAdapter {
         gameSubject.notifyObservers("WAVE_CHANGED", waveManager.getCurrentWave());
         gameSubject.notifyObservers("ENEMIES_CHANGED", enemyManager.getEnemyCount());
         gameSubject.notifyObservers("STATE_CHANGED", player.getStateName());
-        gameSubject.notifyObservers("UPGRADES_CHANGED", player.getStatsDescription());
         gameSubject.notifyObservers("SPEED_CHANGED", player.getSpeed());
         gameSubject.notifyObservers("DAMAGE_CHANGED", player.getDamage());
         gameSubject.notifyObservers("TIME_CHANGED", survivalTime);
+
+        gameSubject.notifyObservers("DAMAGE_BOOST_CHANGED", player.getDamageBoostLevel());
+        gameSubject.notifyObservers("SPEED_BOOST_CHANGED", player.getSpeedBoostLevel());
+        gameSubject.notifyObservers("HEALTH_BOOST_CHANGED", player.getHealthBoostLevel());
+        gameSubject.notifyObservers("MAX_UPGRADE_CHANGED", player.getMaxUpgradeLevel());
     }
 
     private void clearScreen() {
-        Gdx.gl.glClearColor(0.03f, 0.05f, 0.07f, 1f);
+        Gdx.gl.glClearColor(0.02f, 0.03f, 0.05f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
     }
 
@@ -189,15 +203,20 @@ public class GameScreen extends ScreenAdapter {
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
-        hudRenderer.renderPanel(shapeRenderer, 24, 185, 260, 265);
-        hudRenderer.renderPanel(shapeRenderer, 585, 220, 195, 230);
+        hudRenderer.renderPanel(
+            shapeRenderer,
+            GameConfig.SIDEBAR_X,
+            GameConfig.SIDEBAR_Y,
+            GameConfig.SIDEBAR_WIDTH,
+            GameConfig.SIDEBAR_HEIGHT
+        );
 
         hudRenderer.renderHealthBar(
             shapeRenderer,
-            35,
-            448,
-            230,
-            10,
+            GameConfig.SIDEBAR_X + 22f,
+            GameConfig.SIDEBAR_Y + GameConfig.SIDEBAR_HEIGHT - 112f,
+            GameConfig.SIDEBAR_WIDTH - 44f,
+            12f,
             player.getHp(),
             player.getMaxHp()
         );

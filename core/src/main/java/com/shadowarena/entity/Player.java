@@ -7,12 +7,17 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.shadowarena.config.GameConfig;
 import com.shadowarena.decorator.BasePlayerStats;
+import com.shadowarena.decorator.DamageBoostDecorator;
+import com.shadowarena.decorator.HealthBoostDecorator;
 import com.shadowarena.decorator.PlayerStats;
+import com.shadowarena.decorator.SpeedBoostDecorator;
 import com.shadowarena.state.IdleState;
 import com.shadowarena.state.PlayerState;
 import com.shadowarena.ui.UiTheme;
 
 public class Player {
+
+    private static final int MAX_UPGRADE_LEVEL = 3;
 
     private float x;
     private float y;
@@ -20,7 +25,6 @@ public class Player {
     private final float height;
 
     private int hp;
-
     private final Rectangle bounds;
 
     private boolean moving;
@@ -32,6 +36,10 @@ public class Player {
 
     private PlayerState currentState;
     private PlayerStats stats;
+
+    private int damageBoostLevel;
+    private int speedBoostLevel;
+    private int healthBoostLevel;
 
     public Player(float x, float y) {
         this.x = x;
@@ -52,6 +60,10 @@ public class Player {
         this.attackCooldown = 0.35f;
         this.attackVisibleTime = 0.12f;
 
+        this.damageBoostLevel = 0;
+        this.speedBoostLevel = 0;
+        this.healthBoostLevel = 0;
+
         this.currentState = new IdleState();
         this.currentState.enter(this);
     }
@@ -62,7 +74,7 @@ public class Player {
         if (!isDead()) {
             handleInput(delta);
             updateAttack(delta);
-            clampToScreen();
+            clampToArena();
         }
 
         updateBounds();
@@ -108,24 +120,16 @@ public class Player {
         }
     }
 
-    private void clampToScreen() {
-        float padding = 22f;
+    private void clampToArena() {
+        float minX = GameConfig.ARENA_X + 8f;
+        float maxX = GameConfig.ARENA_X + GameConfig.ARENA_WIDTH - width - 8f;
+        float minY = GameConfig.ARENA_Y + 8f;
+        float maxY = GameConfig.ARENA_Y + GameConfig.ARENA_HEIGHT - height - 8f;
 
-        if (x < padding) {
-            x = padding;
-        }
-
-        if (x > Gdx.graphics.getWidth() - width - padding) {
-            x = Gdx.graphics.getWidth() - width - padding;
-        }
-
-        if (y < padding) {
-            y = padding;
-        }
-
-        if (y > Gdx.graphics.getHeight() - height - padding) {
-            y = Gdx.graphics.getHeight() - height - padding;
-        }
+        if (x < minX) x = minX;
+        if (x > maxX) x = maxX;
+        if (y < minY) y = minY;
+        if (y > maxY) y = maxY;
     }
 
     private void updateBounds() {
@@ -133,12 +137,7 @@ public class Player {
     }
 
     public void render(ShapeRenderer shapeRenderer) {
-        if (isDead()) {
-            shapeRenderer.setColor(Color.DARK_GRAY);
-        } else {
-            shapeRenderer.setColor(UiTheme.PLAYER);
-        }
-
+        shapeRenderer.setColor(isDead() ? Color.DARK_GRAY : UiTheme.PLAYER);
         shapeRenderer.rect(x, y, width, height);
 
         shapeRenderer.setColor(Color.WHITE);
@@ -155,36 +154,47 @@ public class Player {
     }
 
     public Rectangle getAttackArea() {
-        return new Rectangle(
-            x - 24,
-            y - 24,
-            width + 48,
-            height + 48
-        );
+        return new Rectangle(x - 24, y - 24, width + 48, height + 48);
     }
 
-    public void applyStats(PlayerStats newStats) {
+    public boolean applyDamageBoost() {
+        if (damageBoostLevel >= MAX_UPGRADE_LEVEL) {
+            return false;
+        }
+
+        stats = new DamageBoostDecorator(stats);
+        damageBoostLevel++;
+        return true;
+    }
+
+    public boolean applySpeedBoost() {
+        if (speedBoostLevel >= MAX_UPGRADE_LEVEL) {
+            return false;
+        }
+
+        stats = new SpeedBoostDecorator(stats);
+        speedBoostLevel++;
+        return true;
+    }
+
+    public boolean applyHealthBoost() {
+        if (healthBoostLevel >= MAX_UPGRADE_LEVEL) {
+            return false;
+        }
+
         int oldMaxHp = stats.getMaxHp();
 
-        this.stats = newStats;
+        stats = new HealthBoostDecorator(stats);
+        healthBoostLevel++;
 
         int newMaxHp = stats.getMaxHp();
-
-        if (newMaxHp > oldMaxHp) {
-            hp += newMaxHp - oldMaxHp;
-        }
+        hp += newMaxHp - oldMaxHp;
 
         if (hp > newMaxHp) {
             hp = newMaxHp;
         }
-    }
 
-    public PlayerStats getStats() {
-        return stats;
-    }
-
-    public String getStatsDescription() {
-        return stats.getDescription();
+        return true;
     }
 
     public void changeState(PlayerState newState) {
@@ -209,9 +219,7 @@ public class Player {
     }
 
     public void takeDamage(int amount) {
-        if (isDead()) {
-            return;
-        }
+        if (isDead()) return;
 
         hp -= amount;
 
@@ -221,9 +229,7 @@ public class Player {
     }
 
     public void heal(int amount) {
-        if (isDead()) {
-            return;
-        }
+        if (isDead()) return;
 
         hp += amount;
 
@@ -254,6 +260,22 @@ public class Player {
 
     public float getSpeed() {
         return stats.getSpeed();
+    }
+
+    public int getDamageBoostLevel() {
+        return damageBoostLevel;
+    }
+
+    public int getSpeedBoostLevel() {
+        return speedBoostLevel;
+    }
+
+    public int getHealthBoostLevel() {
+        return healthBoostLevel;
+    }
+
+    public int getMaxUpgradeLevel() {
+        return MAX_UPGRADE_LEVEL;
     }
 
     public float getX() {

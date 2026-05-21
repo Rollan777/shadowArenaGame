@@ -19,7 +19,6 @@ public class Lwjgl3Launcher {
         GameSettings settings = GameSettings.getInstance();
 
         Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
-
         configuration.setTitle(settings.getGameTitle());
         configuration.setWindowedMode(settings.getWindowWidth(), settings.getWindowHeight());
         configuration.setForegroundFPS(settings.getTargetFps());

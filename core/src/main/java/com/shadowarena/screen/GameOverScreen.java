@@ -25,26 +25,26 @@ public class GameOverScreen extends ScreenAdapter {
     public void render(float delta) {
         handleInput();
 
-        Gdx.gl.glClearColor(0.08f, 0.02f, 0.03f, 1f);
+        Gdx.gl.glClearColor(0.07f, 0.02f, 0.03f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         ShapeRenderer shapeRenderer = game.getShapeRenderer();
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        hudRenderer.renderPanel(shapeRenderer, 245, 105, 310, 280);
+        hudRenderer.renderPanel(shapeRenderer, 375, 145, 350, 330);
         shapeRenderer.end();
 
         GameStatsService statsService = GameStatsService.getInstance();
 
         game.getBatch().begin();
 
-        game.getFont().draw(game.getBatch(), "GAME OVER", 355, 350);
-        game.getFont().draw(game.getBatch(), "Final Score: " + finalScore, 330, 305);
-        game.getFont().draw(game.getBatch(), "Best Score: " + statsService.getBestScore(), 330, 280);
-        game.getFont().draw(game.getBatch(), "Games Played: " + statsService.getTotalGamesPlayed(), 315, 255);
+        game.getFont().draw(game.getBatch(), "GAME OVER", 510, 420);
+        game.getFont().draw(game.getBatch(), "Final Score: " + finalScore, 485, 360);
+        game.getFont().draw(game.getBatch(), "Best Score: " + statsService.getBestScore(), 485, 335);
+        game.getFont().draw(game.getBatch(), "Games Played: " + statsService.getTotalGamesPlayed(), 470, 310);
 
-        game.getFont().draw(game.getBatch(), "Press R to Restart", 320, 205);
-        game.getFont().draw(game.getBatch(), "Press M to Menu", 330, 180);
-        game.getFont().draw(game.getBatch(), "Press ESC to Exit", 325, 155);
+        game.getFont().draw(game.getBatch(), "[ R ] Restart", 500, 250);
+        game.getFont().draw(game.getBatch(), "[ M ] Menu", 510, 220);
+        game.getFont().draw(game.getBatch(), "[ ESC ] Exit", 505, 190);
 
         game.getBatch().end();
     }

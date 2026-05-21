@@ -61,6 +61,10 @@ public class EffectManager {
     }
 
     public void showScore(float x, float y, int score) {
+        if (score <= 0) {
+            return;
+        }
+
         floatingTexts.add(new FloatingText("+" + score, x, y, Color.GREEN));
     }
 

@@ -4,6 +4,17 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 public class HudRenderer {
 
+    public void renderPanel(ShapeRenderer shapeRenderer, float x, float y, float width, float height) {
+        shapeRenderer.setColor(UiTheme.PANEL);
+        shapeRenderer.rect(x, y, width, height);
+
+        shapeRenderer.setColor(UiTheme.PANEL_BORDER);
+        shapeRenderer.rectLine(x, y, x + width, y, 2f);
+        shapeRenderer.rectLine(x, y + height, x + width, y + height, 2f);
+        shapeRenderer.rectLine(x, y, x, y + height, 2f);
+        shapeRenderer.rectLine(x + width, y, x + width, y + height, 2f);
+    }
+
     public void renderHealthBar(
         ShapeRenderer shapeRenderer,
         float x,
@@ -26,23 +37,6 @@ public class HudRenderer {
         }
 
         shapeRenderer.rect(x, y, currentWidth, height);
-
-        shapeRenderer.setColor(UiTheme.PANEL_BORDER);
-        shapeRenderer.rectLine(x, y, x + width, y, 2f);
-        shapeRenderer.rectLine(x, y + height, x + width, y + height, 2f);
-        shapeRenderer.rectLine(x, y, x, y + height, 2f);
-        shapeRenderer.rectLine(x + width, y, x + width, y + height, 2f);
-    }
-
-    public void renderPanel(
-        ShapeRenderer shapeRenderer,
-        float x,
-        float y,
-        float width,
-        float height
-    ) {
-        shapeRenderer.setColor(UiTheme.PANEL);
-        shapeRenderer.rect(x, y, width, height);
 
         shapeRenderer.setColor(UiTheme.PANEL_BORDER);
         shapeRenderer.rectLine(x, y, x + width, y, 2f);

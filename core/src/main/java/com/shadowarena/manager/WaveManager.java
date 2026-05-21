@@ -1,7 +1,7 @@
 package com.shadowarena.manager;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
+import com.shadowarena.config.GameConfig;
 import com.shadowarena.entity.enemy.Enemy;
 import com.shadowarena.factory.EnemyFactory;
 import com.shadowarena.factory.EnemyType;
@@ -47,14 +47,20 @@ public class WaveManager {
         boolean leftSide = MathUtils.randomBoolean();
 
         if (leftSide) {
-            return MathUtils.random(10, 80);
+            return MathUtils.random(GameConfig.ARENA_X + 20f, GameConfig.ARENA_X + 90f);
         }
 
-        return MathUtils.random(Gdx.graphics.getWidth() - 100, Gdx.graphics.getWidth() - 40);
+        return MathUtils.random(
+            GameConfig.ARENA_X + GameConfig.ARENA_WIDTH - 110f,
+            GameConfig.ARENA_X + GameConfig.ARENA_WIDTH - 40f
+        );
     }
 
     private float getSpawnY() {
-        return MathUtils.random(50, Gdx.graphics.getHeight() - 70);
+        return MathUtils.random(
+            GameConfig.ARENA_Y + 50f,
+            GameConfig.ARENA_Y + GameConfig.ARENA_HEIGHT - 80f
+        );
     }
 
     public int getCurrentWave() {
