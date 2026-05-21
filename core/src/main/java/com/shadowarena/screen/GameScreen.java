@@ -127,11 +127,16 @@ public class GameScreen extends ScreenAdapter {
         waveManager.startNextWave(enemyManager);
 
         if (effectManager != null) {
-            effectManager.showWave(
-                GameConfig.ARENA_X + GameConfig.ARENA_WIDTH / 2f - 40f,
-                GameConfig.ARENA_Y + GameConfig.ARENA_HEIGHT / 2f,
-                waveManager.getCurrentWave()
-            );
+            float waveTextX;
+            float waveTextY = GameConfig.ARENA_Y + GameConfig.ARENA_HEIGHT / 2f;
+
+            if (waveManager.isCurrentWaveBossWave()) {
+                waveTextX = GameConfig.ARENA_X + GameConfig.ARENA_WIDTH / 2f - 80f;
+                effectManager.showWave(waveTextX, waveTextY, waveManager.getCurrentWave());
+            } else {
+                waveTextX = GameConfig.ARENA_X + GameConfig.ARENA_WIDTH / 2f - 40f;
+                effectManager.showWave(waveTextX, waveTextY, waveManager.getCurrentWave());
+            }
         }
     }
 
@@ -149,11 +154,7 @@ public class GameScreen extends ScreenAdapter {
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
-            boolean upgraded = player.applyDamageBoost();
-
-            if (upgraded) {
-                effectManager.showScore(player.getX(), player.getY() + 55f, 0);
-            }
+            player.applyDamageBoost();
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) {

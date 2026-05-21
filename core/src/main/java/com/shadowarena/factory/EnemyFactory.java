@@ -1,5 +1,6 @@
 package com.shadowarena.factory;
 
+import com.shadowarena.entity.enemy.BossEnemy;
 import com.shadowarena.entity.enemy.Enemy;
 import com.shadowarena.entity.enemy.FastEnemy;
 import com.shadowarena.entity.enemy.RangedEnemy;
@@ -20,6 +21,9 @@ public class EnemyFactory {
 
             case RANGED:
                 return new RangedEnemy(x, y, new KeepDistanceStrategy());
+
+            case BOSS:
+                return new BossEnemy(x, y, new ChasePlayerStrategy());
 
             default:
                 return new FastEnemy(x, y, new RandomMoveStrategy());
