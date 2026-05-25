@@ -4,6 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.shadowarena.audio.AudioService;
 import com.shadowarena.facade.GameFacade;
 import com.shadowarena.screen.MenuScreen;
 
@@ -34,6 +35,8 @@ public class ShadowArenaGame extends Game {
         if (getScreen() != null) {
             getScreen().dispose();
         }
+
+        AudioService.getInstance().dispose();
 
         batch.dispose();
         font.dispose();

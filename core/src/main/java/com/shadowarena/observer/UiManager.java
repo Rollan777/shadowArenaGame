@@ -129,5 +129,6 @@ public class UiManager implements GameObserver {
         font.draw(batch, "SPACE Attack", x, y - 524f);
         font.draw(batch, "1/2/3 Upgrade", x, y - 547f);
         font.draw(batch, "P Pause", x, y - 570f);
+        font.draw(batch, "M Mute Audio", x, y - 593f);
     }
 }

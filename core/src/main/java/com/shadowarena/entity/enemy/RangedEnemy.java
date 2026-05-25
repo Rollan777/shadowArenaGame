@@ -10,9 +10,9 @@ public class RangedEnemy extends Enemy {
         super(
             x,
             y,
-            26f,
-            26f,
-            95f,
+            28f,
+            28f,
+            105f,
             55,
             10,
             25,
@@ -22,7 +22,20 @@ public class RangedEnemy extends Enemy {
 
     @Override
     public void render(ShapeRenderer shapeRenderer) {
+        shapeRenderer.setColor(Color.WHITE);
+        shapeRenderer.triangle(
+            getCenterX(), y + height + 3f,
+            x - 3f, y - 3f,
+            x + width + 3f, y - 3f
+        );
+
         shapeRenderer.setColor(Color.ORANGE);
-        shapeRenderer.circle(getCenterX(), getCenterY(), width / 2f);
+        shapeRenderer.triangle(
+            getCenterX(), y + height,
+            x, y,
+            x + width, y
+        );
+
+        renderHealthBar(shapeRenderer);
     }
 }

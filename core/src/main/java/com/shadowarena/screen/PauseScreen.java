@@ -28,6 +28,7 @@ public class PauseScreen extends ScreenAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         ShapeRenderer shapeRenderer = game.getShapeRenderer();
+
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         hudRenderer.renderPanel(shapeRenderer, 390, 180, 320, 260);
         shapeRenderer.end();
@@ -35,9 +36,10 @@ public class PauseScreen extends ScreenAdapter {
         game.getBatch().begin();
 
         game.getFont().draw(game.getBatch(), "GAME PAUSED", 500, 390);
+
         game.getFont().draw(game.getBatch(), "[ R ] Resume", 500, 330);
-        game.getFont().draw(game.getBatch(), "[ M ] Menu", 510, 300);
-        game.getFont().draw(game.getBatch(), "[ ESC ] Exit", 505, 270);
+        game.getFont().draw(game.getBatch(), "[ ESC ] Menu", 495, 300);
+        game.getFont().draw(game.getBatch(), "[ Q ] Exit", 510, 270);
 
         game.getFont().draw(game.getBatch(), "Shadow Arena", 505, 220);
         game.getFont().draw(game.getBatch(), "Game Flow Control", 485, 195);
@@ -50,11 +52,11 @@ public class PauseScreen extends ScreenAdapter {
             game.getGameFacade().resumeGame(pausedGameScreen);
         }
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             game.getGameFacade().showMenu();
         }
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
             Gdx.app.exit();
         }
     }

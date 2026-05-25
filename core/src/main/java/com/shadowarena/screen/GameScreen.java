@@ -6,6 +6,7 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.shadowarena.ShadowArenaGame;
+import com.shadowarena.audio.AudioService;
 import com.shadowarena.config.GameConfig;
 import com.shadowarena.effect.EffectManager;
 import com.shadowarena.entity.Player;
@@ -30,16 +31,19 @@ public class GameScreen extends ScreenAdapter {
     private ArenaRenderer arenaRenderer;
     private HudRenderer hudRenderer;
     private EffectManager effectManager;
+    private AudioService audioService;
 
     private int score;
     private float survivalTime;
     private float damageCooldown;
 
     private boolean initialized;
+    private boolean gameOverTriggered;
 
     public GameScreen(ShadowArenaGame game) {
         this.game = game;
         this.initialized = false;
+        this.gameOverTriggered = false;
     }
 
     @Override
@@ -66,10 +70,12 @@ public class GameScreen extends ScreenAdapter {
         arenaRenderer = new ArenaRenderer();
         hudRenderer = new HudRenderer();
         effectManager = new EffectManager();
+        audioService = AudioService.getInstance();
 
         score = 0;
         survivalTime = 0f;
         damageCooldown = 0f;
+        gameOverTriggered = false;
 
         startNextWave();
         notifyUi();
@@ -102,6 +108,7 @@ public class GameScreen extends ScreenAdapter {
 
         if (earnedScore > 0) {
             score += earnedScore;
+            audioService.playEnemyKill();
         }
 
         if (damageCooldown <= 0 && enemyManager.checkCollisionWithPlayer(player)) {
@@ -118,7 +125,9 @@ public class GameScreen extends ScreenAdapter {
 
         notifyUi();
 
-        if (player.isDead()) {
+        if (player.isDead() && !gameOverTriggered) {
+            gameOverTriggered = true;
+            audioService.playGameOver();
             game.getGameFacade().showGameOver(score);
         }
     }
@@ -132,11 +141,15 @@ public class GameScreen extends ScreenAdapter {
 
             if (waveManager.isCurrentWaveBossWave()) {
                 waveTextX = GameConfig.ARENA_X + GameConfig.ARENA_WIDTH / 2f - 80f;
-                effectManager.showWave(waveTextX, waveTextY, waveManager.getCurrentWave());
             } else {
                 waveTextX = GameConfig.ARENA_X + GameConfig.ARENA_WIDTH / 2f - 40f;
-                effectManager.showWave(waveTextX, waveTextY, waveManager.getCurrentWave());
             }
+
+            effectManager.showWave(waveTextX, waveTextY, waveManager.getCurrentWave());
+        }
+
+        if (audioService != null) {
+            audioService.playWave();
         }
     }
 
@@ -150,19 +163,40 @@ public class GameScreen extends ScreenAdapter {
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.G)) {
+            audioService.playGameOver();
             game.getGameFacade().showGameOver(score);
         }
 
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+            audioService.playAttack();
+        }
+
         if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
-            player.applyDamageBoost();
+            boolean upgraded = player.applyDamageBoost();
+
+            if (upgraded) {
+                audioService.playUpgrade();
+            }
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) {
-            player.applySpeedBoost();
+            boolean upgraded = player.applySpeedBoost();
+
+            if (upgraded) {
+                audioService.playUpgrade();
+            }
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) {
-            player.applyHealthBoost();
+            boolean upgraded = player.applyHealthBoost();
+
+            if (upgraded) {
+                audioService.playUpgrade();
+            }
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
+            audioService.toggleMute();
         }
     }
 
@@ -228,6 +262,16 @@ public class GameScreen extends ScreenAdapter {
     private void renderHudText() {
         game.getBatch().begin();
         uiManager.render(game.getBatch(), game.getFont());
+
+        String audioStatus = AudioService.getInstance().isMuted() ? "Audio: OFF" : "Audio: ON";
+
+        game.getFont().draw(
+            game.getBatch(),
+            audioStatus,
+            GameConfig.SIDEBAR_X + 22f,
+            GameConfig.SIDEBAR_Y + 25f
+        );
+
         game.getBatch().end();
     }
 
